@@ -3,16 +3,15 @@ type Comparator<T> = (a: T, b: T) => number
 const mergesort = <T>(values: T[], compare: Comparator<T>): T[] => {
   if (values.length <= 1) { return values }
 
-  const midpoint = Math.floor(values.length / 2)
+  const sorted: T[] = []
+  const midpoint = values.length / 2
 
   const left = mergesort(values.slice(0, midpoint), compare)
   const right = mergesort(values.slice(midpoint), compare)
-  const sorted: T[] = []
 
   let leftPtr = 0
   let rightPtr = 0
 
-  // Merge subarrays up to left length === right length
   while (leftPtr < left.length && rightPtr < right.length) {
     const leftVal = left[leftPtr]
     const rightVal = right[rightPtr]
@@ -26,12 +25,13 @@ const mergesort = <T>(values: T[], compare: Comparator<T>): T[] => {
     }
   }
 
-  // cleanup remaining subarray values:
+  // Drain left
   while (leftPtr < left.length) {
     sorted.push(left[leftPtr])
     leftPtr++
   }
 
+  // Drain right
   while (rightPtr < right.length) {
     sorted.push(right[rightPtr])
     rightPtr++
