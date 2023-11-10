@@ -1,23 +1,26 @@
 type Comparator = (a: number, b: number) => number
 
-const quicksort = (values: number[], comparator: Comparator): number[] => {
+const quicksort = (values: number[], compare: Comparator): number[] => {
   const sortedValues = [...values]
-  sort(sortedValues, comparator, 0, sortedValues.length - 1)
+  sortSubset(sortedValues, compare, 0, sortedValues.length - 1)
   return sortedValues
 }
 
-const sort = (values: number[], comparator: Comparator, startIdx: number, endIdx: number) => {
+const sortSubset = (values: number[], compare: Comparator, startIdx: number, endIdx: number) => {
   if (endIdx - startIdx <= 0) { return }
+
+  const partitionIdx = Math.floor(Math.random() * (endIdx - startIdx) + 1) + startIdx
+  const partitionValue = values[partitionIdx]
 
   let leftPtr = startIdx
   let rightPtr = startIdx
-  const pivot = Math.floor(Math.random() * (endIdx - startIdx + 1)) + startIdx
-  const pivotVal = values[pivot]
 
-  swap(values, startIdx, pivot)
+  // Move the partition to the start of our range
+  swap(values, partitionIdx, startIdx)
 
-  while (rightPtr <= endIdx) {
-    if (comparator(pivotVal, values[rightPtr]) > 0) {
+  // Sort items to left and right sides of partition index
+  while(rightPtr <= endIdx) {
+    if(compare(partitionValue, values[rightPtr]) > 0) {
       leftPtr++
       swap(values, leftPtr, rightPtr)
     }
@@ -25,10 +28,12 @@ const sort = (values: number[], comparator: Comparator, startIdx: number, endIdx
     rightPtr++
   }
 
+  // Move partition back to the middle of the range
   swap(values, startIdx, leftPtr)
 
-  sort(values, comparator, startIdx, leftPtr - 1)
-  sort(values, comparator, leftPtr + 1, endIdx)
+  // Recursively sort the left and right ranges separately
+  sortSubset(values, compare, startIdx, leftPtr - 1)
+  sortSubset(values, compare, leftPtr + 1, endIdx)
 }
 
 const swap = (values: number[], idxA: number, idxB: number) => {
