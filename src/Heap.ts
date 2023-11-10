@@ -1,126 +1,104 @@
-class Heap<T> {
-  private heap: T[] = []
-  private compare: (a: T, b: T) => number
+type Comparator<T> = (a: T, b: T) => number
 
-  constructor(compare: (a: T, b: T) => number) {
+class Heap<T> {
+  private heap: T[] = [];
+  private compare: Comparator<T>;
+
+  public constructor(compare: Comparator<T>) {
     this.compare = compare
   }
 
   public push(element: T): void {
     this.heap.push(element)
-    this.bubbleUp(this.lastIdx())
+    this.bubbleUp(this.heap.length - 1)
   }
 
   public pop(): T | null {
-    if (this.heap.length === 0) { return null }
+    if (this.heap.length < 1) { return null }
     if (this.heap.length === 1) { return this.heap.pop() || null }
 
     const head = this.heap[0]
-    const tail = this.heap.pop()
+    const tail = this.heap.pop() || null
 
-    if (tail === undefined) { return head }
+    if (tail === null) { return head }
 
     this.heap[0] = tail
+
     this.bubbleDown(0)
 
     return head
   }
 
-  public peek(): T | null {
-    return this.heap[0] || null
+  public peek(): T|null {
+    if (this.heap.length < 1) { return null }
+
+    return this.heap[0]
   }
 
   public size(): number {
     return this.heap.length
   }
 
-  private lastIdx(): number {
-    return this.heap.length - 1
+  private bubbleDown(idx: number): void {
+    if (idx >= this.heap.length - 1) { return }
+
+    const childIdx = this.minChildIndex(idx);
+
+    if (childIdx === null) { return }
+
+    const value = this.heap[idx]
+    const childValue = this.heap[childIdx]
+
+    if (this.compare(value, childValue) < 1) { return }
+
+    this.swap(idx, childIdx)
+    this.bubbleDown(childIdx)
   }
 
   private bubbleUp(idx: number): void {
     if (idx === 0) { return }
 
-    // Find the parent, quit if none
-    const parentIdx = this.parentIdx(idx)
+    const parentIdx = this.parentIndex(idx)
 
     if (parentIdx === null) { return }
 
-    // If comparator returns positive number, swap with parent
     const value = this.heap[idx]
-    const parent = this.heap[parentIdx]
-    const needsSwap = this.compare(value, parent) < 0
+    const parentValue = this.heap[parentIdx]
 
-    if (!needsSwap) { return }
+    if (this.compare(value, parentValue) >= 1) { return }
 
     this.swap(idx, parentIdx)
-
-    // if swap happened, bubble up again
     this.bubbleUp(parentIdx)
   }
 
-  private bubbleDown(idx: number): void {
-    if (idx >= this.heap.length) { return }
+  private minChildIndex(idx: number): number | null {
+    const size = this.heap.length
 
-    const childIdx = this.minChildIdx(idx)
+    if (idx >= size - 1) { return null }
 
-    if (childIdx === null) { return }
+    const leftIdx = idx * 2 + 1
+    const rightIdx = leftIdx + 1
 
-    const childValue = this.heap[childIdx]
-    const value = this.heap[idx]
+    if (leftIdx >= size && rightIdx > size) { return null }
 
-    if (this.compare(value, childValue) < 0) { return }
+    const leftValue = this.heap[leftIdx]
+    const rightValue = this.heap[rightIdx]
 
-    this.swap(idx, childIdx)
+    if (rightIdx < size && this.compare(rightValue, leftValue) < 1) { return rightIdx }
 
-    this.bubbleDown(childIdx)
+    return leftIdx
+  }
+
+  private parentIndex(idx: number): number | null {
+    const parentIdx = Math.floor((idx - 1) / 2)
+
+    if (parentIdx < 0) { return null }
+
+    return parentIdx
   }
 
   private swap(idxA: number, idxB: number): void {
     [this.heap[idxA], this.heap[idxB]] = [this.heap[idxB], this.heap[idxA]]
-  }
-
-  private parentIdx(idx: number): number | null {
-    const pIdx = Math.floor((idx - 1) / 2)
-
-    if (pIdx < 0) { return null }
-
-    return pIdx
-  }
-
-  private leftChildIdx(idx: number): number | null {
-    const childIdx = idx * 2 + 1
-
-    if (childIdx >= this.heap.length) { return null }
-
-    return childIdx
-  }
-
-  private rightChildIdx(idx: number): number | null {
-    const childIdx = idx * 2 + 2
-
-    if (childIdx >= this.heap.length) { return null }
-
-    return childIdx
-  }
-
-  private minChildIdx(idx: number): number | null {
-    if (idx >= this.heap.length) { return null }
-
-    // Get child indexes:
-    const leftChildIdx = this.leftChildIdx(idx)
-    const rightChildIdx = this.rightChildIdx(idx)
-
-    if (leftChildIdx === null && rightChildIdx === null) { return null }
-    if (leftChildIdx === null) { return rightChildIdx }
-    if (rightChildIdx === null) { return leftChildIdx }
-
-    const leftChild = this.heap[leftChildIdx]
-    const rightChild = this.heap[rightChildIdx]
-
-    if (this.compare(leftChild, rightChild) > 0) { return rightChildIdx }
-
-    return leftChildIdx
   }
 }
 
