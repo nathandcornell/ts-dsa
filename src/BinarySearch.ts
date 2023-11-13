@@ -1,20 +1,24 @@
-const binarySearch = (allValues: number[], value: number): number | null => {
+type Comparator<T> = (a: T, b: T) => number
+
+const binarySearch = <T>(allValues: T[], value: T, compare: Comparator<T>): number | null => {
   if (allValues.length < 1) { return null }
 
   let startIdx = 0
-  let endIdx = allValues.length - 1
+  let endIdx = allValues.length
 
   while (startIdx <= endIdx) {
-    const midpoint = Math.floor((endIdx + startIdx) / 2)
+    const midpoint = Math.floor((endIdx - startIdx) / 2) + startIdx
     const midpointValue = allValues[midpoint]
-    console.log(`midpoint: ${midpoint}, midpointValue: ${midpointValue}`)
+    const comparedWithMidpoint = compare(value, midpointValue)
 
-    if (midpointValue === value) { return midpoint }
+    if (comparedWithMidpoint === 0) {
+      return midpoint
+    }
 
-    if (midpointValue < value) { 
-      startIdx = midpoint + 1
-    } else {
+    if (comparedWithMidpoint < 0) {
       endIdx = midpoint - 1
+    } else {
+      startIdx = midpoint + 1
     }
   }
 

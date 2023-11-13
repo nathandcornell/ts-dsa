@@ -1,8 +1,8 @@
 type Comparator<T> = (a: T, b: T) => number
 
 class Heap<T> {
-  private heap: T[] = [];
-  private compare: Comparator<T>;
+  private heap: T[] = []
+  private compare: Comparator<T>
 
   public constructor(compare: Comparator<T>) {
     this.compare = compare
