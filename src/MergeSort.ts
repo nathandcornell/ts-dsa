@@ -1,40 +1,38 @@
 type Comparator<T> = (a: T, b: T) => number
 
 const mergesort = <T>(values: T[], compare: Comparator<T>): T[] => {
-  if (values.length <= 1) { return values }
+  if (values.length === 1) { return values }
 
-  const sorted: T[] = []
-  const midpoint = values.length / 2
+  const midpoint = Math.floor(values.length / 2)
 
-  const left = mergesort(values.slice(0, midpoint), compare)
-  const right = mergesort(values.slice(midpoint), compare)
+  const sub1 = mergesort(values.slice(0, midpoint), compare)
+  const sub2 = mergesort(values.slice(midpoint), compare)
+  const sorted = []
 
-  let leftPtr = 0
-  let rightPtr = 0
+  let ptr1 = 0
+  let ptr2 = 0
 
-  while (leftPtr < left.length && rightPtr < right.length) {
-    const leftVal = left[leftPtr]
-    const rightVal = right[rightPtr]
+  while (ptr1 < sub1.length && ptr2 < sub2.length) {
+    const val1 = sub1[ptr1]
+    const val2 = sub2[ptr2]
 
-    if (compare(leftVal, rightVal) < 1) {
-      sorted.push(leftVal)
-      leftPtr++
+    if (compare(val1, val2) < 0) {
+      sorted.push(val1)
+      ptr1++
     } else {
-      sorted.push(rightVal)
-      rightPtr++
+      sorted.push(val2)
+      ptr2++
     }
   }
 
-  // Drain left
-  while (leftPtr < left.length) {
-    sorted.push(left[leftPtr])
-    leftPtr++
+  while (ptr1 < sub1.length) {
+    sorted.push(sub1[ptr1])
+    ptr1++
   }
 
-  // Drain right
-  while (rightPtr < right.length) {
-    sorted.push(right[rightPtr])
-    rightPtr++
+  while (ptr2 < sub2.length) {
+    sorted.push(sub2[ptr2])
+    ptr2++
   }
 
   return sorted
